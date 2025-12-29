@@ -1,4 +1,4 @@
-package com.local_network.back;
+package com.local_messenger.back;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

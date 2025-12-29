@@ -25,7 +25,7 @@
     <setting id="org.eclipse.jdt.core.formatter.insert_space_before_opening_brace_in_method_declaration" value="true"/>
     
     <!-- Импорты -->
-    <setting id="org.eclipse.jdt.core.formatter.import_order" value="java,javax,org,com"/>
+    <setting id="org.eclipse.jdt.core.formatter.import_order" value="java;javax;io;org;com"/>
     <setting id="org.eclipse.jdt.core.formatter.import_on_demand_threshold" value="999"/>
     <setting id="org.eclipse.jdt.core.formatter.remove_unused_imports" value="true"/>
 </profile>
