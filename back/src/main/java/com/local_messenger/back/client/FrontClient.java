@@ -12,7 +12,9 @@ import com.local_messenger.back.model.api.rest.RegisterResponse;
 import com.local_messenger.back.model.api.rest.StatusResponse;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FrontClient {
@@ -20,31 +22,40 @@ public class FrontClient {
     private final RuntimeData runtimeData;
 
     public StatusResponse getStatus() {
-        return StatusResponse.builder()
+        StatusResponse status = StatusResponse.builder()
                 .registered(runtimeData.getIsRegistered())
                 .nick(runtimeData.getName())
                 .id(runtimeData.getId())
                 .build();
+        log.info("🟢 [FrontClient] getStatus → {}", status);
+        return status;
     }
 
     public RegisterResponse register(final RegisterRequest registerRequest) {
         runtimeData.setIsRegistered(true);
         runtimeData.setName(registerRequest.getNick());
         runtimeData.setId(java.util.UUID.randomUUID().toString());
-        return RegisterResponse.builder()
+        RegisterResponse response = RegisterResponse.builder()
                 .id(runtimeData.getId())
                 .nick(registerRequest.getNick())
                 .build();
+        log.info("🟣 [FrontClient] register req={} → resp={}", registerRequest, response);
+        return response;
     }
 
     public NickResponse updateNick(final NickRequest nickRequest) {
         runtimeData.setName(nickRequest.getNewNick());
-        return NickResponse.builder()
+        NickResponse response = NickResponse.builder()
                 .nick(runtimeData.getName())
+                .id(runtimeData.getId())
                 .build();
+        log.info("🟡 [FrontClient] updateNick req={} → resp={}", nickRequest, response);
+        return response;
     }
 
     public LatestHistoryResponse getLatestHistory(final LatestHistoryRequest latestHistoryRequest) {
-        return new LatestHistoryResponse();
+        LatestHistoryResponse response = new LatestHistoryResponse();
+        log.info("🔵 [FrontClient] getLatestHistory req={} → resp={}", latestHistoryRequest, response);
+        return response;
     }
 }

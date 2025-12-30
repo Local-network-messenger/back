@@ -6,6 +6,9 @@ import org.springframework.web.ErrorResponse;
 
 import com.local_messenger.back.model.api.ws.FoundUserResponse;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class WebSocketOutputController {
     private final SimpMessagingTemplate messagingTemplate;
@@ -15,10 +18,12 @@ public class WebSocketOutputController {
     }
 
     public void sendFoundUser(final FoundUserResponse response) {
+        log.info("✅🟢 [WebSocketOutputController] Отправка FoundUserResponse через WebSocket: {}", response);
         messagingTemplate.convertAndSend("/user/discovery-results", response);
     }
 
     public void sendError(final ErrorResponse response) {
+        log.warn("❌🟠 [WebSocketOutputController] Отправка ошибки через WebSocket: {}", response);
         messagingTemplate.convertAndSend("/user/errors", response);
     }
 }

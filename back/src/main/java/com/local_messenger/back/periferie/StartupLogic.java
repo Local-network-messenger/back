@@ -2,6 +2,7 @@ package com.local_messenger.back.periferie;
 
 import java.io.File;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -16,46 +17,45 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class StartupLogic implements CommandLineRunner {
-    private RuntimeData runtimeData;
+    private final RuntimeData runtimeData;
     private final ObjectMapper objectMapper;
+    @Value("${back.logPath}")
+    private String defaultFilePath;
 
     @Override
     public void run(String... args) throws Exception {
-        final String[] possiblePaths = {
-                "./config/local-config.json",
-                "config/local-config.json",
-                "src/main/resources/config/local-config.json",
-                "local-config.json"
-        };
+        log.info("🚀 [StartupLogic] Запуск инициализации конфигурации...");
+
         File configFile = null;
-        for (String path : possiblePaths) {
-            java.io.File file = new java.io.File(path);
-            if (file.exists() && file.isFile()) {
-                configFile = file;
-                break;
-            }
+
+        java.io.File file = new java.io.File(defaultFilePath);
+        log.debug("🔍 [StartupLogic] Проверка наличия файла конфигурации: {}", defaultFilePath);
+        if (file.exists() && file.isFile()) {
+            configFile = file;
+            log.info("📄 [StartupLogic] Найден файл конфигурации: {}", defaultFilePath);
         }
 
-        if (configFile == null) {
+        if (configFile != null) {
             try {
-
+                log.info("📥 [StartupLogic] Загрузка конфигурации из файла: {}", configFile.getAbsolutePath());
                 JsonNode jsonConfig = objectMapper.readTree(configFile);
-
                 processJsonConfig(jsonConfig, configFile.getCanonicalPath());
-
-                log.info("Конфигурация успешно загружена из {}", configFile.getName());
-
+                log.info("✅ [StartupLogic] Конфигурация успешно загружена из {}", configFile.getName());
             } catch (Exception e) {
-                log.error("Ошибка загрузки JSON-конфигурации: {}", e.getMessage(), e);
+                log.error("❌ [StartupLogic] Ошибка загрузки JSON-конфигурации: {}", e.getMessage(), e);
             }
         } else {
-            log.info("Конфигурационный файл не найден. Используются значения по умолчанию.");
-            createDefaultConfigFile(possiblePaths[0]);
+            log.warn("⚠️ [StartupLogic] Конфигурационный файл не найден. Используются значения по умолчанию.");
+            createDefaultConfigFile(defaultFilePath);
         }
+
+        runtimeData.setFilePath(defaultFilePath);
+        log.info("🚀 [StartupLogic] Инициализация конфигурации завершена {}", runtimeData);
     }
 
     private void processJsonConfig(JsonNode jsonConfig, String path) {
         boolean isRegistered = jsonConfig.get("is-registered").asBoolean();
+        log.debug("🔎 [StartupLogic] processJsonConfig: is-registered = {}", isRegistered);
         if (isRegistered) {
             String userId = jsonConfig.get("user-id").asText();
             String userName = jsonConfig.get("user-name").asText();
@@ -63,17 +63,20 @@ public class StartupLogic implements CommandLineRunner {
             runtimeData.setId(userId);
             runtimeData.setName(userName);
             runtimeData.setFilePath(path);
-            log.info("Пользователь загружен из конфигурации: {} ({})", userName, userId);
+            log.info("🙋‍♂️ [StartupLogic] Пользователь загружен из конфигурации: {} ({})", userName, userId);
         } else {
-            log.info("Пользователь не зарегистрирован в конфигурации.");
+            log.info("🙅‍♂️ [StartupLogic] Пользователь не зарегистрирован в конфигурации.");
         }
     }
 
     private void createDefaultConfigFile(String path) {
         try {
             File configFile = new File(path);
-            configFile.getParentFile().mkdirs();
-            configFile.createNewFile();
+            if (configFile.getParentFile() != null) {
+                configFile.getParentFile().mkdirs();
+            }
+            boolean created = configFile.createNewFile();
+            log.debug("🆕 [StartupLogic] createDefaultConfigFile: файл создан? {}", created);
 
             String defaultConfig = """
                     {
@@ -82,11 +85,10 @@ public class StartupLogic implements CommandLineRunner {
                       "user-name": ""
                     }
                     """;
-
             java.nio.file.Files.writeString(configFile.toPath(), defaultConfig);
-            log.info("Создан файл конфигурации с настройками по умолчанию по пути: {}", path);
+            log.info("📝 [StartupLogic] Создан файл конфигурации с настройками по умолчанию по пути: {}", path);
         } catch (Exception e) {
-            log.error("Ошибка создания файла конфигурации: {}", e.getMessage(), e);
+            log.error("❌ [StartupLogic] Ошибка создания файла конфигурации: {}", e.getMessage(), e);
         }
     }
 }

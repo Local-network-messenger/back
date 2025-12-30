@@ -33,10 +33,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework:spring-messaging'
 
-    // SPRINGWOLF
-    implementation "io.github.springwolf:springwolf-core:${springwolfVersion}"
-    implementation "io.github.springwolf:springwolf-stomp:${springwolfVersion}"
-    implementation "io.github.springwolf:springwolf-ui:${springwolfVersion}"
 
     // SWAGGER / OPENAPI
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"

@@ -21,9 +21,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
-@Slf4j
 @Tag(name = "WebSocket API", description = "WebSocket/STOMP endpoints (описание для Swagger UI)")
 public class WebSocketReactiveClientController {
 
@@ -33,7 +33,10 @@ public class WebSocketReactiveClientController {
     @MessageMapping("/messages/send")
     @SendToUser("/message-status")
     public SendMessageResponse sendMessage(@Payload SendMessageRequest request, Principal principal) {
-        return new SendMessageResponse();
+        SendMessageResponse response = new SendMessageResponse();
+        log.info("💬🔵 [WebSocketReactiveClientController] sendMessage user='{}' req={} → resp={}",
+                principal != null ? principal.getName() : "anonymous", request, response);
+        return response;
     }
 
     @Operation(summary = "Get message history chunk via WebSocket (STOMP)", description = "Клиент отправляет запрос на /app/messages/history, получает chunk истории на /user/history-chunks.", requestBody = @RequestBody(required = true, content = @Content(schema = @Schema(implementation = HistoryChunkRequest.class))), responses = {
@@ -42,6 +45,9 @@ public class WebSocketReactiveClientController {
     @MessageMapping("/messages/history")
     @SendToUser("/history-chunks")
     public HistoryChunkResponse getHistoryChunk(@Payload HistoryChunkRequest request, Principal principal) {
-        return new HistoryChunkResponse();
+        HistoryChunkResponse response = new HistoryChunkResponse();
+        log.info("📚🔵 [WebSocketReactiveClientController] getHistoryChunk user='{}' req={} → resp={}",
+                principal != null ? principal.getName() : "anonymous", request, response);
+        return response;
     }
 }

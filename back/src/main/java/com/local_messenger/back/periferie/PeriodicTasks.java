@@ -24,9 +24,16 @@ public class PeriodicTasks {
     public void pullDataFromRuntime() {
         try {
             if (!runtimeData.getIsRegistered()) {
+                log.debug("⏭️ [PeriodicTasks] Runtime is not registered, skipping file write.");
                 return;
             }
-            File curFile = new File(runtimeData.getFilePath());
+            String filePath = runtimeData.getFilePath();
+            if (filePath == null || filePath.isBlank()) {
+                log.warn("❗ [PeriodicTasks] filePath is null or blank in runtimeData! Не могу записать файл. {}",
+                        runtimeData);
+                return;
+            }
+            File curFile = new File(filePath);
             if (curFile.exists() && curFile.isFile()) {
                 FileData fileData = FileData.builder()
                         .isRegistered(runtimeData.getIsRegistered())
@@ -34,10 +41,13 @@ public class PeriodicTasks {
                         .name(runtimeData.getName())
                         .build();
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(curFile, fileData);
+                log.info("💾✅ [PeriodicTasks] Wrote runtime data to file: {} | data: {}", curFile.getAbsolutePath(),
+                        fileData);
+            } else {
+                log.warn("❗ [PeriodicTasks] File does not exist or is not a file: {}", curFile.getAbsolutePath());
             }
         } catch (Exception e) {
-            log.info("[PeriodicTasks] Error in pullDataFromRuntime: " + e.getMessage());
-            log.info("[PeriodicTasks] Stack trace: ", e);
+            log.error("❌ [PeriodicTasks] Error in pullDataFromRuntime: {}", e.getMessage(), e);
         }
     }
 }
