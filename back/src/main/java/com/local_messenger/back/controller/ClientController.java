@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.local_messenger.back.model.api.rest.LatestHistoryRequest;
+import com.local_messenger.back.model.api.rest.LatestHistoryResponse;
 import com.local_messenger.back.model.api.rest.NickRequest;
 import com.local_messenger.back.model.api.rest.NickResponse;
 import com.local_messenger.back.model.api.rest.RegisterRequest;
@@ -36,5 +38,10 @@ class ClientController {
     @PutMapping("/nick")
     public ResponseEntity<NickResponse> putNick(final @RequestBody @Valid NickRequest nickRequest) {
         return ResponseEntity.ok(new NickResponse());
+    }
+
+    @GetMapping("/latestHistory")
+    public LatestHistoryResponse getLatestGistory(final @RequestBody @Valid LatestHistoryRequest latestHistoryRequest) {
+        return new LatestHistoryResponse();
     }
 }
