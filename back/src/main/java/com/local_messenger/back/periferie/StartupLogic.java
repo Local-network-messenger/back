@@ -2,14 +2,16 @@ package com.local_messenger.back.periferie;
 
 import java.io.File;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.local_messenger.back.model.periferie.RuntimeData;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.local_messenger.back.model.periferie.RuntimeData;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
@@ -52,16 +54,27 @@ public class StartupLogic implements CommandLineRunner {
     }
 
     private void processJsonConfig(final JsonNode jsonConfig, final String path) {
-        final boolean isRegistered = jsonConfig.get("is-registered").asBoolean();
-        log.debug("🔎 [StartupLogic] processJsonConfig: is-registered = {}", isRegistered);
+        final JsonNode isRegisteredNode = jsonConfig.get("registered");
+        if (isRegisteredNode == null) {
+            log.warn("⚠️ [StartupLogic] Поле 'isRegistered' отсутствует в конфигурации");
+            return;
+        }
+        final boolean isRegistered = isRegisteredNode.asBoolean();
+        log.debug("🔎 [StartupLogic] processJsonConfig: isRegistered = {}", isRegistered);
         if (isRegistered) {
-            final String userId = jsonConfig.get("user-id").asText();
-            final String userName = jsonConfig.get("user-name").asText();
-            runtimeData.setIsRegistered(isRegistered);
-            runtimeData.setId(userId);
-            runtimeData.setName(userName);
-            runtimeData.setFilePath(path);
-            log.info("🙋‍♂️ [StartupLogic] Пользователь загружен из конфигурации: {} ({})", userName, userId);
+            final JsonNode idNode = jsonConfig.get("id");
+            final JsonNode nameNode = jsonConfig.get("name");
+            if (idNode != null && nameNode != null) {
+                final String userId = idNode.asText();
+                final String userName = nameNode.asText();
+                runtimeData.setIsRegistered(isRegistered);
+                runtimeData.setId(userId);
+                runtimeData.setName(userName);
+                runtimeData.setFilePath(path);
+                log.info("🙋‍♂️ [StartupLogic] Пользователь загружен из конфигурации: {} ({})", userName, userId);
+            } else {
+                log.warn("⚠️ [StartupLogic] Отсутствуют обязательные поля 'id' или 'name' в конфигурации");
+            }
         } else {
             log.info("🙅‍♂️ [StartupLogic] Пользователь не зарегистрирован в конфигурации.");
         }
@@ -77,12 +90,12 @@ public class StartupLogic implements CommandLineRunner {
             log.debug("🆕 [StartupLogic] createDefaultConfigFile: файл создан? {}", created);
 
             final String defaultConfig = """
-                {
-                  "is-registered": false,
-                  "user-id": "",
-                  "user-name": ""
-                }
-                """;
+                    {
+                      "isRegistered": false,
+                      "id": "",
+                      "name": ""
+                    }
+                    """;
             java.nio.file.Files.writeString(configFile.toPath(), defaultConfig);
             log.info("📝 [StartupLogic] Создан файл конфигурации с настройками по умолчанию по пути: {}", path);
         } catch (final Exception e) {

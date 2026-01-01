@@ -10,11 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MdnsDiscoveredServiceInfo {
-    private Runtime runtime;
-    private String serviceName;
-    private String serviceType;
-    private String domain;
-    private String hostName;
-    private String ipAddress;
-    private int port;
+    private String peerId;
+    private String nick;
+    private String ip;
+    private Integer port;
+    private Long lastSeenTimestamp;
 }
