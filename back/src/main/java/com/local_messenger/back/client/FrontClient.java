@@ -20,13 +20,18 @@ public class FrontClient {
     private final WebSocketOutputController webSocketOutputController;
 
     public void startDiscovery(final StartDiscoveryRequest startDiscoveryRequest, final Principal payload) {
+        log.info("🔍 Начало поиска сервисов для пользователя: {}", payload.getName());
         final Map<String, MdnsDiscoveredServiceInfo> curServices = mdnsRegistrationService.getRegistrations();
+        log.debug("✅ Найдено {} сервисов во время поиска", curServices.size());
         curServices.values().forEach(service -> {
             final FoundUserResponse response =
                 (FoundUserResponse.builder().ip(service.getIp()).nick(service.getNick())
                     .port(service.getPort())).peerId(service.getPeerId()).build();
+            log.debug("📤 Отправка ответа о найденном пользователе: ник={}, ip={}, port={}", service.getNick(),
+                service.getIp(), service.getPort());
             webSocketOutputController.sendFoundUser(response);
         });
+        log.info("✨ Поиск завершён для пользователя: {}", payload.getName());
     }
 
 

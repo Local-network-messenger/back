@@ -18,6 +18,7 @@ public class WebSocketInputController {
 
     @MessageMapping("/discovery/start")
     public void startDiscovery(@Payload final StartDiscoveryRequest request, final Principal principal) {
+        log.info("📨 Получен запрос на начало поиска от пользователя: {}", principal.getName());
         frontClient.startDiscovery(request, principal);
     }
 }
