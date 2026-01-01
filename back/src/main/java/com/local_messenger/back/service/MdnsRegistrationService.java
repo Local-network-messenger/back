@@ -18,20 +18,18 @@ import javax.jmdns.ServiceEvent;
 import javax.jmdns.ServiceInfo;
 import javax.jmdns.ServiceListener;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.local_messenger.back.model.mdns.MdnsDiscoveredServiceInfo;
+import com.local_messenger.back.model.periferie.RuntimeData;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.local_messenger.back.model.mdns.MdnsDiscoveredServiceInfo;
-import com.local_messenger.back.model.periferie.RuntimeData;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -90,8 +88,8 @@ public class MdnsRegistrationService implements DisposableBean {
     public void initialize() {
         log.info("🚀 [MdnsRegistrationService] Начало инициализации mDNS сервиса...");
         log.debug("🔍 [MdnsRegistrationService] RuntimeData: {}, ObjectMapper: {}",
-                runtimeData != null ? "✅ инжектирован" : "❌ NULL",
-                objectMapper != null ? "✅ инжектирован" : "❌ NULL");
+            runtimeData != null ? "✅ инжектирован" : "❌ NULL",
+            objectMapper != null ? "✅ инжектирован" : "❌ NULL");
 
         if (runtimeData == null) {
             log.error("❌ [MdnsRegistrationService] RuntimeData не инжектирован! Проверьте конфигурацию Spring.");
@@ -119,7 +117,7 @@ public class MdnsRegistrationService implements DisposableBean {
 
             startPeriodicUpdate();
             log.info("🔄 [MdnsRegistrationService] Запущено периодическое обновление (интервал: {}с)",
-                    updateIntervalSeconds);
+                updateIntervalSeconds);
 
             startCleanupTask();
             log.info("🧹 [MdnsRegistrationService] Запущена задача очистки (таймаут: {}с)", cleanupTimeoutSeconds);
@@ -139,7 +137,7 @@ public class MdnsRegistrationService implements DisposableBean {
             final NetworkInterface iface = interfaces.nextElement();
             if (!iface.isUp() || iface.isLoopback() || iface.isVirtual()) {
                 log.debug("⏭️ [MdnsRegistrationService] Пропуск интерфейса: {} (up={}, loopback={}, virtual={})",
-                        iface.getName(), iface.isUp(), iface.isLoopback(), iface.isVirtual());
+                    iface.getName(), iface.isUp(), iface.isLoopback(), iface.isVirtual());
                 continue;
             }
             final Enumeration<InetAddress> adresses = iface.getInetAddresses();
@@ -147,7 +145,7 @@ public class MdnsRegistrationService implements DisposableBean {
                 final InetAddress addr = adresses.nextElement();
                 if (!addr.isLoopbackAddress()) {
                     log.info("✅ [MdnsRegistrationService] Найден IP: {} на интерфейсе {}", addr.getHostAddress(),
-                            iface.getName());
+                        iface.getName());
                     return addr.getHostAddress();
                 }
             }
@@ -168,15 +166,15 @@ public class MdnsRegistrationService implements DisposableBean {
         txtRecords.put(jsonKey, peerJson);
 
         serviceInfo = ServiceInfo.create(
-                serviceType,
-                localServiceName,
-                servicePort,
-                0, 0,
-                txtRecords);
+            serviceType,
+            localServiceName,
+            servicePort,
+            0, 0,
+            txtRecords);
 
         jmdns.registerService(serviceInfo);
         log.info("✅ [MdnsRegistrationService] Сервис зарегистрирован: type={}, name={}, port={}",
-                serviceType, serviceName, servicePort);
+            serviceType, serviceName, servicePort);
     }
 
     private String generateServiceName() {
@@ -191,7 +189,7 @@ public class MdnsRegistrationService implements DisposableBean {
             @Override
             public void serviceAdded(final ServiceEvent event) {
                 log.info("➕ [MdnsRegistrationService] Обнаружен новый сервис: {} (type: {})",
-                        event.getName(), event.getType());
+                    event.getName(), event.getType());
                 jmdns.requestServiceInfo(event.getType(), event.getName(), jmDnsTimeoutRequest);
                 log.debug("📨 [MdnsRegistrationService] Запрошена информация о сервисе: {}", event.getName());
             }
@@ -203,7 +201,7 @@ public class MdnsRegistrationService implements DisposableBean {
                 final MdnsDiscoveredServiceInfo removed = registrations.remove(localServiceName);
                 if (removed != null) {
                     log.debug("🗑️ [MdnsRegistrationService] Удалён из регистрации: {} (peerId: {})",
-                            localServiceName, removed.getPeerId());
+                        localServiceName, removed.getPeerId());
                 }
             }
 
@@ -213,11 +211,10 @@ public class MdnsRegistrationService implements DisposableBean {
                 final String localServiceName = event.getName();
                 log.info("✅ [MdnsRegistrationService] Сервис разрешён: {}", localServiceName);
                 try {
-
                     final String jsonData = localServiceInfo.getPropertyString(jsonKey);
                     if (jsonData != null && !jsonData.trim().isEmpty()) {
                         log.debug("📄 [MdnsRegistrationService] Получены TXT данные для ключа '{}': {}",
-                                jsonKey, jsonData);
+                            jsonKey, jsonData);
                         final MdnsDiscoveredServiceInfo foundInfo = parseFromJson(jsonData);
                         if (foundInfo != null) {
 
@@ -233,22 +230,22 @@ public class MdnsRegistrationService implements DisposableBean {
                             foundInfo.setLastSeenTimestamp(System.currentTimeMillis());
                             registrations.put(localServiceName, foundInfo);
                             log.info(
-                                    "💾 [MdnsRegistrationService] Сохранён сервис: {} → peerId={}, nick={}, ip={}, port={}",
-                                    localServiceName, foundInfo.getPeerId(), foundInfo.getNick(),
-                                    foundInfo.getIp(), foundInfo.getPort());
+                                "💾 [MdnsRegistrationService] Сохранён сервис: {} → peerId={}, nick={}, ip={}, port={}",
+                                localServiceName, foundInfo.getPeerId(), foundInfo.getNick(),
+                                foundInfo.getIp(), foundInfo.getPort());
                             log.debug("📊 [MdnsRegistrationService] Всего зарегистрировано сервисов: {}",
-                                    registrations.size());
+                                registrations.size());
                         } else {
                             log.warn("⚠️ [MdnsRegistrationService] Не удалось распарсить JSON для сервиса: {}",
-                                    localServiceName);
+                                localServiceName);
                         }
                     } else {
                         log.warn("⚠️ [MdnsRegistrationService] Пустые TXT данные для ключа '{}' в сервисе: {}",
-                                jsonKey, localServiceName);
+                            jsonKey, localServiceName);
                     }
                 } catch (final Exception e) {
                     log.error("❌ [MdnsRegistrationService] Ошибка парсинга информации о сервисе {}: {}",
-                            localServiceName, e.getMessage(), e);
+                        localServiceName, e.getMessage(), e);
                 }
             }
         });
@@ -256,7 +253,7 @@ public class MdnsRegistrationService implements DisposableBean {
 
     private void startCleanupTask() {
         log.info("🧹 [MdnsRegistrationService] Настройка задачи очистки старых сервисов (интервал: {}с)",
-                cleanupTimeoutSeconds);
+            cleanupTimeoutSeconds);
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
             try {
                 log.debug("🔄 [MdnsRegistrationService] Запуск задачи очистки...");
@@ -277,12 +274,12 @@ public class MdnsRegistrationService implements DisposableBean {
         registrations.entrySet().removeIf(entry -> {
             final MdnsDiscoveredServiceInfo info = entry.getValue();
             final boolean shouldRemove = info.getLastSeenTimestamp() != null &&
-                    (currentTime - info.getLastSeenTimestamp()) > timeoutMillis;
+                (currentTime - info.getLastSeenTimestamp()) > timeoutMillis;
 
             if (shouldRemove) {
                 final long age = (currentTime - info.getLastSeenTimestamp()) / 1000;
                 log.info("🗑️ [MdnsRegistrationService] Удаление устаревшего сервиса: {} (возраст: {}с, peerId: {})",
-                        entry.getKey(), age, info.getPeerId());
+                    entry.getKey(), age, info.getPeerId());
             }
             return shouldRemove;
         });
@@ -291,7 +288,7 @@ public class MdnsRegistrationService implements DisposableBean {
         final int removed = sizeBefore - sizeAfter;
         if (removed > 0) {
             log.info("✅ [MdnsRegistrationService] Очистка завершена: удалено {} сервисов, осталось {}",
-                    removed, sizeAfter);
+                removed, sizeAfter);
         } else {
             log.debug("✅ [MdnsRegistrationService] Очистка завершена: удалений не требуется (всего: {})", sizeAfter);
         }
@@ -299,7 +296,7 @@ public class MdnsRegistrationService implements DisposableBean {
 
     private void startPeriodicUpdate() {
         log.info("🔄 [MdnsRegistrationService] Настройка периодического обновления (интервал: {}с)",
-                updateIntervalSeconds);
+            updateIntervalSeconds);
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
@@ -325,11 +322,11 @@ public class MdnsRegistrationService implements DisposableBean {
             log.debug("📄 [MdnsRegistrationService] Новые JSON данные: {}", peerJson);
 
             final ServiceInfo newServiceInfo = ServiceInfo.create(
-                    serviceType,
-                    serviceInfo.getName(),
-                    servicePort,
-                    0, 0,
-                    peerJson);
+                serviceType,
+                serviceInfo.getName(),
+                servicePort,
+                0, 0,
+                peerJson);
 
             log.debug("🔓 [MdnsRegistrationService] Отмена регистрации старого сервиса...");
             jmdns.unregisterService(serviceInfo);
@@ -353,7 +350,7 @@ public class MdnsRegistrationService implements DisposableBean {
                 jmdns.requestServiceInfo(serviceType, localServiceName, jmDnsTimeoutRefresh);
             } catch (final Exception e) {
                 log.error("❌ [MdnsRegistrationService] Ошибка запроса информации о сервисе {}: {}",
-                        localServiceName, e.getMessage(), e);
+                    localServiceName, e.getMessage(), e);
             }
         });
 
@@ -370,7 +367,7 @@ public class MdnsRegistrationService implements DisposableBean {
         log.debug("📖 [MdnsRegistrationService] Парсинг JSON: {}", jsonData);
         final MdnsDiscoveredServiceInfo result = objectMapper.readValue(jsonData, MdnsDiscoveredServiceInfo.class);
         log.debug("✅ [MdnsRegistrationService] JSON успешно распарсен: peerId={}, nick={}",
-                result.getPeerId(), result.getNick());
+            result.getPeerId(), result.getNick());
         return result;
     }
 
@@ -381,14 +378,14 @@ public class MdnsRegistrationService implements DisposableBean {
         }
 
         final MdnsDiscoveredServiceInfo curInfo = MdnsDiscoveredServiceInfo.builder()
-                .peerId(runtimeData.getId())
-                .nick(runtimeData.getName())
-                .ip(curIp)
-                .port(curPort)
-                .build();
+            .peerId(runtimeData.getId())
+            .nick(runtimeData.getName())
+            .ip(curIp)
+            .port(curPort)
+            .build();
         final String json = objectMapper.writeValueAsString(curInfo);
         log.debug("✅ [MdnsRegistrationService] Создан JSON: peerId={}, nick={}, ip={}, port={}",
-                runtimeData.getId(), runtimeData.getName(), curIp, curPort);
+            runtimeData.getId(), runtimeData.getName(), curIp, curPort);
         return json;
     }
 

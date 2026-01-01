@@ -13,5 +13,5 @@ public class FoundUserResponse {
     private String peerId;
     private String nick;
     private String ip;
-    private String port;
+    private Integer port;
 }

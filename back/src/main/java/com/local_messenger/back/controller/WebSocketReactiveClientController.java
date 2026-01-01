@@ -22,7 +22,7 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@Tag(name = "WebSocket API", description = "WebSocket/STOMP endpoints (описание для Swagger UI)")
+@Tag(name = "WebSocket API", description = "WebSocket/STOMP endpoints")
 public class WebSocketReactiveClientController {
 
     @Operation(summary = "Send message via WebSocket (STOMP)", description = "Клиент отправляет сообщение на канал /app/messages/send, получает ответ на /user/message-status.", requestBody = @RequestBody(required = true, content = @Content(schema = @Schema(implementation = SendMessageRequest.class))), responses = {
