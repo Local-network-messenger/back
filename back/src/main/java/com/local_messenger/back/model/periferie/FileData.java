@@ -1,4 +1,4 @@
-package com.local_messenger.back.periferie;
+package com.local_messenger.back.model.periferie;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

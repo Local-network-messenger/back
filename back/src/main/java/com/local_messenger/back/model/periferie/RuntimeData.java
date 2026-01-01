@@ -1,4 +1,6 @@
-package com.local_messenger.back.config;
+package com.local_messenger.back.model.periferie;
+
+import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
+@Component
 public class RuntimeData {
     @Builder.Default
     private Boolean isRegistered = false;

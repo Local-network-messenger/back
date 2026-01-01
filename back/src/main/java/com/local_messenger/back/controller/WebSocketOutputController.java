@@ -1,19 +1,17 @@
 package com.local_messenger.back.controller;
 
+import com.local_messenger.back.model.api.ws.FoundUserResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.ErrorResponse;
-
-import com.local_messenger.back.model.api.ws.FoundUserResponse;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
 public class WebSocketOutputController {
     private final SimpMessagingTemplate messagingTemplate;
 
-    public WebSocketOutputController(SimpMessagingTemplate messagingTemplate) {
+    public WebSocketOutputController(final SimpMessagingTemplate messagingTemplate) {
         this.messagingTemplate = messagingTemplate;
     }
 
